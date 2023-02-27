@@ -6,7 +6,7 @@ namespace jpg2pdf.Test
 	public class ConverterTest
 	{
 		[Test]
-		public void TestConvertJpgToPdf()
+		public void TestConvertImageToPdf()
 		{
 			const string testJpgFilename = "jpg2pdf.Test.TestFiles.Test1.jpg";
 
@@ -14,7 +14,7 @@ namespace jpg2pdf.Test
 			{
 				Assert.That(inputImageStream, Is.Not.Null);
 
-				using var pdfStream = Converter.ConvertoToPdf(inputImageStream);
+				using var pdfStream = Converter.ConvertImageToPdf(inputImageStream);
 				{
 					Assert.That(pdfStream, Is.Not.Null);
 					Assert.That(pdfStream.Length, Is.GreaterThan(0));
