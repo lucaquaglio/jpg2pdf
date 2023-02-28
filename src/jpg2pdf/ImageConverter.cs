@@ -1,26 +1,26 @@
-﻿using EnsureThat;
+﻿using Ardalis.GuardClauses;
 using iText.IO.Image;
 using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
+using System.IO;
 
 namespace jpg2pdf
 {
-	public class Converter
+	public class ImageConverter
 	{
-		public static Stream ConvertImageToPdf(Stream imageStream)
+		public static Stream ToPdf(Stream imageStream)
 		{
-			Ensure.That(imageStream is not null, nameof(imageStream));
-			Ensure.That(imageStream!.Length > 0);
+			Guard.Against.Null(imageStream, nameof(imageStream));
 
-			var buffer = ConvertStreamInByteArray(imageStream);
 
 			var pdfStream = new MemoryStream();
-
 			var pdfDoc = new PdfDocument(new PdfWriter(pdfStream));
-			var image = new Image(ImageDataFactory.Create(buffer));
 
 			var document = new Document(pdfDoc);
+
+			var buffer = ConvertStreamInByteArray(imageStream);
+			var image = new Image(ImageDataFactory.Create(buffer));
 			document.Add(image);
 
 			pdfStream.Position = 0;
