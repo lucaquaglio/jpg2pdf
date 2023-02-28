@@ -13,7 +13,7 @@ namespace jpg2pdf
 			Guard.Against.Null(imageStream, nameof(imageStream));
 
 			var pdfStream = new MemoryStream();
-			var pdfWriter = new PdfWriter(pdfStream);
+			using var pdfWriter = new PdfWriter(pdfStream);
 			pdfWriter.SetCloseStream(false);
 
 			var pdfDoc = new PdfDocument(pdfWriter);
