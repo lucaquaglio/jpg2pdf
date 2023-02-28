@@ -3,24 +3,36 @@ using System.Reflection;
 
 namespace jpg2pdf.Test
 {
-	public class ConverterTest
+	sealed class ImageConverterTest
 	{
-		[Test]
-		public void TestConvertImageToPdf()
+		[Test, TestCaseSource(nameof(GetTestDataResourceFileNames))]
+		public void TesToPdf(string resourceFilename)
 		{
-			const string testJpgFilename = "jpg2pdf.Test.TestFiles.Test1.jpg";
-
-			using var inputImageStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(testJpgFilename);
+			using var inputImageStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceFilename);
 			{
 				Assert.That(inputImageStream, Is.Not.Null);
 
-				using var pdfStream = Converter.ConvertImageToPdf(inputImageStream);
+				using var pdfStream = ImageConverter.ToPdf(inputImageStream);
 				{
 					Assert.That(pdfStream, Is.Not.Null);
 					Assert.That(pdfStream.Length, Is.GreaterThan(0));
 					Assert.DoesNotThrow(() => new PdfReader(pdfStream));
 				}
 			}
+		}
+
+		[Test]
+		public void TestGuardClause()
+		{
+			Assert.Throws<ArgumentNullException>(() => ImageConverter.ToPdf(null));
+			Assert.Throws<iText.IO.Exceptions.IOException>(() => ImageConverter.ToPdf(Stream.Null));
+		}
+
+		static IEnumerable<string> GetTestDataResourceFileNames()
+		{
+			yield return "jpg2pdf.Test.TestFiles.Test1.jpg";
+			yield return "jpg2pdf.Test.TestFiles.Test2.png";
+			yield return "jpg2pdf.Test.TestFiles.Test3.gif";
 		}
 	}
 }
