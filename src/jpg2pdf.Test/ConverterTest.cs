@@ -6,9 +6,9 @@ namespace jpg2pdf.Test
 	sealed class ImageConverterTest
 	{
 		[Test, TestCaseSource(nameof(GetTestDataResourceFileNames))]
-		public void TesToPdf(string resourceFilename)
+		public void TesToPdf(string resourceName)
 		{
-			using var inputImageStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceFilename);
+			using Stream? inputImageStream = GetResourceStream(resourceName);
 			{
 				Assert.That(inputImageStream, Is.Not.Null);
 
@@ -21,16 +21,29 @@ namespace jpg2pdf.Test
 			}
 		}
 
-		[Test, TestCaseSource(nameof(GetTestDataFileNamePaths))]
-		public void TestToPdf_ExportToFile(string filename)
+		[Test, TestCaseSource(nameof(GetTestDataResourceFileNames))]
+		public void TestToPdf_ExportToFile(string resourceName)
 		{
-			ImageConverter.ToPdf(filename);
+			var expectedFilenameResult = $"{resourceName}.pdf";
 
-			var expectedFilenameResult = $"{filename}.pdf";
-			Assert.That(File.Exists(expectedFilenameResult), Is.True);
-			Assert.DoesNotThrow(() => new PdfReader(expectedFilenameResult));
+			using (var resourceStream = GetResourceStream(resourceName))
+			using (var fileStream = new FileStream(expectedFilenameResult, FileMode.Create))
+			{
+				resourceStream.CopyTo(fileStream);
+			}
 
-			File.Delete(expectedFilenameResult);
+			try
+			{
+				ImageConverter.ToPdf(resourceName);
+
+				Assert.That(File.Exists(expectedFilenameResult), Is.True);
+				Assert.DoesNotThrow(() => new PdfReader(expectedFilenameResult));
+			}
+			finally
+			{
+				File.Delete(resourceName);
+				File.Delete(expectedFilenameResult);
+			}
 		}
 
 		[Test]
@@ -50,9 +63,9 @@ namespace jpg2pdf.Test
 			yield return "jpg2pdf.Test.TestFiles.Test3.gif";
 		}
 
-		static IEnumerable<string> GetTestDataFileNamePaths()
+		static Stream GetResourceStream(string resourceName)
 		{
-			yield return "TestFiles\\Test.jpg";
+			return Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName) ?? throw new InvalidOperationException();
 		}
 	}
 }

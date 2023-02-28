@@ -3,7 +3,6 @@ using iText.IO.Image;
 using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
-using System.IO;
 
 namespace jpg2pdf
 {
@@ -12,7 +11,6 @@ namespace jpg2pdf
 		public static Stream ToPdf(Stream imageStream)
 		{
 			Guard.Against.Null(imageStream, nameof(imageStream));
-
 
 			var pdfStream = new MemoryStream();
 			var pdfDoc = new PdfDocument(new PdfWriter(pdfStream));
@@ -29,7 +27,9 @@ namespace jpg2pdf
 
 		public static void ToPdf(string fileName)
 		{
+			Guard.Against.
 
+			var outputFilename = $"{fileName}.pdf";			
 		}
 
 		static byte[] ConvertStreamInByteArray(Stream stream)
