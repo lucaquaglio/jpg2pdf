@@ -16,7 +16,7 @@ namespace jpg2pdf.Test
 				{
 					Assert.That(pdfStream, Is.Not.Null);
 					Assert.That(pdfStream.Length, Is.GreaterThan(0));
-					Assert.DoesNotThrow(() => new PdfReader(pdfStream));
+					Assert.DoesNotThrow(() => new PdfReader(pdfStream).Close());
 				}
 			}
 		}
@@ -27,7 +27,7 @@ namespace jpg2pdf.Test
 			var expectedFilenameResult = $"{resourceName}.pdf";
 
 			using (var resourceStream = GetResourceStream(resourceName))
-			using (var fileStream = new FileStream(expectedFilenameResult, FileMode.Create))
+			using (var fileStream = new FileStream(resourceName, FileMode.Create))
 			{
 				resourceStream.CopyTo(fileStream);
 			}
@@ -37,7 +37,7 @@ namespace jpg2pdf.Test
 				ImageConverter.ToPdf(resourceName);
 
 				Assert.That(File.Exists(expectedFilenameResult), Is.True);
-				Assert.DoesNotThrow(() => new PdfReader(expectedFilenameResult));
+				Assert.DoesNotThrow(() => new PdfReader(expectedFilenameResult).Close());
 			}
 			finally
 			{
@@ -50,10 +50,10 @@ namespace jpg2pdf.Test
 		public void TestGuardClause()
 		{
 			Assert.Throws<ArgumentNullException>(() => ImageConverter.ToPdf(imageStream: null));
-			Assert.Throws<ArgumentNullException>(() => ImageConverter.ToPdf(string.Empty));
+			Assert.Throws<ArgumentException>(() => ImageConverter.ToPdf(string.Empty));
 
 			Assert.Throws<iText.IO.Exceptions.IOException>(() => ImageConverter.ToPdf(Stream.Null));
-			Assert.Throws<System.IO.FileNotFoundException>(() => ImageConverter.ToPdf("<invalid path>"));
+			Assert.Throws<System.IO.FileNotFoundException>(() => ImageConverter.ToPdf("file not exists"));
 		}
 
 		static IEnumerable<string> GetTestDataResourceFileNames()
