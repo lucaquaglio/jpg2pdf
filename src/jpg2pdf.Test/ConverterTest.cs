@@ -21,11 +21,26 @@ namespace jpg2pdf.Test
 			}
 		}
 
+		[Test, TestCaseSource(nameof(GetTestDataFileNamePaths))]
+		public void TestToPdf_ExportToFile(string filename)
+		{
+			ImageConverter.ToPdf(filename);
+
+			var expectedFilenameResult = $"{filename}.pdf";
+			Assert.That(File.Exists(expectedFilenameResult), Is.True);
+			Assert.DoesNotThrow(() => new PdfReader(expectedFilenameResult));
+
+			File.Delete(expectedFilenameResult);
+		}
+
 		[Test]
 		public void TestGuardClause()
 		{
-			Assert.Throws<ArgumentNullException>(() => ImageConverter.ToPdf(null));
+			Assert.Throws<ArgumentNullException>(() => ImageConverter.ToPdf(imageStream: null));
+			Assert.Throws<ArgumentNullException>(() => ImageConverter.ToPdf(string.Empty));
+
 			Assert.Throws<iText.IO.Exceptions.IOException>(() => ImageConverter.ToPdf(Stream.Null));
+			Assert.Throws<System.IO.FileNotFoundException>(() => ImageConverter.ToPdf("<invalid path>"));
 		}
 
 		static IEnumerable<string> GetTestDataResourceFileNames()
@@ -33,6 +48,11 @@ namespace jpg2pdf.Test
 			yield return "jpg2pdf.Test.TestFiles.Test1.jpg";
 			yield return "jpg2pdf.Test.TestFiles.Test2.png";
 			yield return "jpg2pdf.Test.TestFiles.Test3.gif";
+		}
+
+		static IEnumerable<string> GetTestDataFileNamePaths()
+		{
+			yield return "TestFiles\\Test.jpg";
 		}
 	}
 }

@@ -27,6 +27,11 @@ namespace jpg2pdf
 			return pdfStream;
 		}
 
+		public static void ToPdf(string fileName)
+		{
+
+		}
+
 		static byte[] ConvertStreamInByteArray(Stream stream)
 		{
 			var buffer = new byte[stream.Length];
