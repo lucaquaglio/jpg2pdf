@@ -12,6 +12,11 @@
 	<ItemGroup>
 		<EmbeddedResource Include="TestFiles\*" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Compile Remove="bin\**" />
+	  <EmbeddedResource Remove="bin\**" />
+	  <None Remove="bin\**" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="itext7" Version="7.2.5" />
