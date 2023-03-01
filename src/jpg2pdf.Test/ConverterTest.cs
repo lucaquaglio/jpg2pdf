@@ -8,7 +8,7 @@ namespace jpg2pdf.Test
 		[Test, TestCaseSource(nameof(GetTestDataResourceFileNames))]
 		public void TesToPdf(string resourceName)
 		{
-			using Stream? inputImageStream = GetResourceStream(resourceName);
+			using Stream inputImageStream = GetResourceStream(resourceName);
 			{
 				Assert.That(inputImageStream, Is.Not.Null);
 
