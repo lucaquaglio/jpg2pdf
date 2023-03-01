@@ -3,7 +3,7 @@
 	sealed class Jpg2PdfConsoleTest
 	{
 		[Test, TestCaseSource(nameof(GetTestDataResourceFileNames))]
-		public void TestConvertFile(string resourceName)
+		public void TestMain_WithManyDifferentFiles(string resourceName)
 		{
 			Console.Program.Main(new[] { resourceName });
 
@@ -11,6 +11,18 @@
 			Assert.That(File.Exists(expectedOutputFilename), Is.True);
 		}
 
+		[Test]
+		public void TestMain_WithNoArguments()
+		{
+			Assert.Throws<InvalidOperationException>(() => Console.Program.Main(Array.Empty<string>()));
+		}
+
+		[Test]
+		public void TestMain_WithMoreThanOneArguments()
+		{
+			Assert.Throws<InvalidOperationException>(() => Console.Program.Main(new[] { "A", "B" }));
+
+		}
 
 		[SetUp]
 		public void SetUp()
