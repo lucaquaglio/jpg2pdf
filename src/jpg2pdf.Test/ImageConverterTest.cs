@@ -1,5 +1,4 @@
 using iText.Kernel.Pdf;
-using System.Reflection;
 
 namespace jpg2pdf.Test
 {
@@ -8,7 +7,7 @@ namespace jpg2pdf.Test
 		[Test, TestCaseSource(nameof(GetTestDataResourceFileNames))]
 		public void TesToPdf(string resourceName)
 		{
-			using Stream? inputImageStream = GetResourceStream(resourceName);
+			using Stream inputImageStream = TestHelper.GetResourceStream(resourceName);
 			{
 				Assert.That(inputImageStream, Is.Not.Null);
 
@@ -24,13 +23,8 @@ namespace jpg2pdf.Test
 		[Test, TestCaseSource(nameof(GetTestDataResourceFileNames))]
 		public void TestToPdf_ExportToFile(string resourceName)
 		{
-			var expectedFilenameResult = $"{resourceName}.pdf";
-
-			using (var resourceStream = GetResourceStream(resourceName))
-			using (var fileStream = new FileStream(resourceName, FileMode.Create))
-			{
-				resourceStream.CopyTo(fileStream);
-			}
+			TestHelper.WriteFileGivenResourceName(resourceName);
+			var expectedFilenameResult = TestHelper.GetPdfFileNameGivenImageFileName(resourceName);
 
 			try
 			{
@@ -53,19 +47,10 @@ namespace jpg2pdf.Test
 			Assert.Throws<ArgumentException>(() => ImageConverter.ToPdf(string.Empty));
 
 			Assert.Throws<iText.IO.Exceptions.IOException>(() => ImageConverter.ToPdf(Stream.Null));
-			Assert.Throws<System.IO.FileNotFoundException>(() => ImageConverter.ToPdf("file not exists"));
+			Assert.Throws<FileNotFoundException>(() => ImageConverter.ToPdf("file not exists"));
 		}
 
-		static IEnumerable<string> GetTestDataResourceFileNames()
-		{
-			yield return "jpg2pdf.Test.TestFiles.Test1.jpg";
-			yield return "jpg2pdf.Test.TestFiles.Test2.png";
-			yield return "jpg2pdf.Test.TestFiles.Test3.gif";
-		}
+		static IEnumerable<string> GetTestDataResourceFileNames() => TestHelper.GetTestDataResourceFileNames();
 
-		static Stream GetResourceStream(string resourceName)
-		{
-			return Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName) ?? throw new InvalidOperationException();
-		}
 	}
 }
