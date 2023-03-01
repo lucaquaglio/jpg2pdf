@@ -50,11 +50,7 @@ namespace jpg2pdf.Test
 			Assert.Throws<FileNotFoundException>(() => ImageConverter.ToPdf("file not exists"));
 		}
 
-		static IEnumerable<string> GetTestDataResourceFileNames()
-		{
-			yield return TestHelper.Test1ResourceName;
-			yield return TestHelper.Test2ResourceName;
-			yield return TestHelper.Test3ResourceName;
-		}
+		static IEnumerable<string> GetTestDataResourceFileNames() => TestHelper.GetTestDataResourceFileNames();
+
 	}
 }
