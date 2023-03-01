@@ -4,6 +4,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>disable</Nullable>
 		<IsPackable>false</IsPackable>
+		<BaseOutputPath>..\..\bin</BaseOutputPath>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<Optimize>False</Optimize>
@@ -26,10 +27,5 @@
 	<ItemGroup>
 		<ProjectReference Include="..\jpg2pdf.Console\jpg2pdf.Console.csproj" />
 		<ProjectReference Include="..\jpg2pdf\jpg2pdf.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-		<EmbeddedResource Update="TestFiles\Test1.jpg">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</EmbeddedResource>
 	</ItemGroup>
 </Project>
