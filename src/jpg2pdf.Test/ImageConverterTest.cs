@@ -113,7 +113,15 @@ namespace jpg2pdf.Test
 		public void TearDown()
 		{
 			var currentDirectory = Directory.GetCurrentDirectory();
-			var allFiles = Directory.GetFiles(currentDirectory, "*.jpg|*.png|*.gif|*.pdf");
+			var allFiles = Directory.GetFiles(currentDirectory)
+				.Where(x =>
+				{
+					return x.EndsWith(".jpg")
+					|| x.EndsWith(".png")
+					|| x.EndsWith(".gif")
+					|| x.EndsWith(".pdf");
+				});
+
 			foreach (var item in allFiles)
 			{
 				File.Delete(item);

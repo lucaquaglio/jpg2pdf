@@ -44,6 +44,26 @@ namespace jpg2pdf
 			pdfStream.CopyTo(output);
 		}
 
+		public static void ToPdf(string[] inputFiles, string outputFileName = null)
+		{
+			Guard.Against.NullOrEmpty(inputFiles, nameof(inputFiles));
+
+			outputFileName ??= $"{inputFiles[0]}.pdf";
+
+			var inputStreamCollection = inputFiles
+				.Select(x => new FileStream(x, FileMode.Open))
+				.Cast<Stream>()
+				.ToArray();
+
+			using var pdfStream = ToPdf(inputStreamCollection);
+			using var output = new FileStream(outputFileName, FileMode.Create);
+			pdfStream.CopyTo(output);
+
+			inputStreamCollection
+				.ToList()
+				.ForEach(x => x.Dispose());
+		}
+
 		static byte[] ConvertStreamInByteArray(Stream stream)
 		{
 			var buffer = new byte[stream.Length];
