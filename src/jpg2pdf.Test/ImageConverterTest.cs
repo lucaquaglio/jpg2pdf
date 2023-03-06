@@ -46,13 +46,14 @@ namespace jpg2pdf.Test
 		{
 			Assert.Throws<ArgumentNullException>(() => ImageConverter.ToPdf(imageStreamCollection: null));
 			Assert.Throws<ArgumentException>(() => ImageConverter.ToPdf(string.Empty));
+			Assert.Throws<ArgumentException>(() => ImageConverter.ToPdf(Enumerable.Empty<Stream>().ToArray()));
 
 			Assert.Throws<iText.IO.Exceptions.IOException>(() => ImageConverter.ToPdf(Stream.Null));
 			Assert.Throws<FileNotFoundException>(() => ImageConverter.ToPdf("file not exists"));
 		}
 
 		[Test]
-		public void TestToPdfMultipleImages()
+		public void TestToPdf_UsingMultipleImages()
 		{
 			var images = TestHelper.GetTestDataResourceFileNames()
 				.Select(x => TestHelper.GetResourceStream(x))
