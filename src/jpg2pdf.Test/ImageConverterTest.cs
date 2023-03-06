@@ -27,18 +27,10 @@ namespace jpg2pdf.Test
 			TestHelper.WriteFileGivenResourceName(resourceName);
 			var expectedFilenameResult = TestHelper.GetPdfFileNameGivenImageFileName(resourceName);
 
-			try
-			{
-				ImageConverter.ToPdf(resourceName);
+			ImageConverter.ToPdf(resourceName);
 
-				Assert.That(File.Exists(expectedFilenameResult), Is.True);
-				Assert.DoesNotThrow(() => new PdfReader(expectedFilenameResult).Close());
-			}
-			finally
-			{
-				File.Delete(resourceName);
-				File.Delete(expectedFilenameResult);
-			}
+			Assert.That(File.Exists(expectedFilenameResult), Is.True);
+			Assert.DoesNotThrow(() => new PdfReader(expectedFilenameResult).Close());
 		}
 
 		[Test, TestCaseSource(nameof(GetTestDataResourceFileNames))]
@@ -47,19 +39,45 @@ namespace jpg2pdf.Test
 			TestHelper.WriteFileGivenResourceName(resourceName);
 			var expectedFilenameResult = "result.pdf";
 
-			try
-			{
-				ImageConverter.ToPdf(resourceName, expectedFilenameResult);
+			ImageConverter.ToPdf(resourceName, expectedFilenameResult);
 
-				Assert.That(File.Exists(expectedFilenameResult), Is.True);
-				Assert.DoesNotThrow(() => new PdfReader(expectedFilenameResult).Close());
-			}
-			finally
-			{
-				File.Delete(resourceName);
-				File.Delete(expectedFilenameResult);
-			}
+			Assert.That(File.Exists(expectedFilenameResult), Is.True);
+			Assert.DoesNotThrow(() => new PdfReader(expectedFilenameResult).Close());
 		}
+
+		[Test]
+		public void TestToPdf_ExportToFile_MultipleImagesInput()
+		{
+			var inputResourceFileNames = GetTestDataResourceFileNames();
+			foreach (var resourceName in inputResourceFileNames)
+			{
+				TestHelper.WriteFileGivenResourceName(resourceName);
+			}
+			var expectedFilenameResult = TestHelper.GetPdfFileNameGivenImageFileName(inputResourceFileNames.ElementAt(0));
+
+			ImageConverter.ToPdf(inputResourceFileNames.ToArray());
+
+			Assert.That(File.Exists(expectedFilenameResult), Is.True);
+			Assert.DoesNotThrow(() => new PdfReader(expectedFilenameResult).Close());
+		}
+
+		[Test]
+		public void TestToPdf_ExportToFile_MultipleImagesInput_OutputFilenameSpecified()
+		{
+			var inputResourceFileNames = GetTestDataResourceFileNames();
+			foreach (var resourceName in inputResourceFileNames)
+			{
+				TestHelper.WriteFileGivenResourceName(resourceName);
+			}
+			var outputFilename = "result.pdf";
+
+			ImageConverter.ToPdf(inputResourceFileNames.ToArray(), outputFilename);
+
+			Assert.That(File.Exists(outputFilename), Is.True);
+			Assert.DoesNotThrow(() => new PdfReader(outputFilename).Close());
+
+		}
+
 
 		[Test]
 		public void TestGuardClause()
@@ -88,6 +106,17 @@ namespace jpg2pdf.Test
 				using var document = new PdfDocument(pdfReader);
 
 				Assert.That(document.GetNumberOfPages(), Is.EqualTo(3));
+			}
+		}
+
+		[TearDown]
+		public void TearDown()
+		{
+			var currentDirectory = Directory.GetCurrentDirectory();
+			var allFiles = Directory.GetFiles(currentDirectory, "*.jpg|*.png|*.gif|*.pdf");
+			foreach (var item in allFiles)
+			{
+				File.Delete(item);
 			}
 		}
 
