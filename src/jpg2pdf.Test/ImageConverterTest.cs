@@ -1,4 +1,5 @@
 using iText.Kernel.Pdf;
+using iText.Layout;
 
 namespace jpg2pdf.Test
 {
@@ -43,11 +44,30 @@ namespace jpg2pdf.Test
 		[Test]
 		public void TestGuardClause()
 		{
-			Assert.Throws<ArgumentNullException>(() => ImageConverter.ToPdf(imageStream: null));
+			Assert.Throws<ArgumentNullException>(() => ImageConverter.ToPdf(imageStreamCollection: null));
 			Assert.Throws<ArgumentException>(() => ImageConverter.ToPdf(string.Empty));
 
 			Assert.Throws<iText.IO.Exceptions.IOException>(() => ImageConverter.ToPdf(Stream.Null));
 			Assert.Throws<FileNotFoundException>(() => ImageConverter.ToPdf("file not exists"));
+		}
+
+		[Test]
+		public void TestToPdfMultipleImages()
+		{
+			var images = TestHelper.GetTestDataResourceFileNames()
+				.Select(x => TestHelper.GetResourceStream(x))
+				.ToArray();
+
+			using var pdfResultStream = ImageConverter.ToPdf(images);
+			{
+				Assert.That(pdfResultStream, Is.Not.Null);
+				Assert.That(pdfResultStream.Length, Is.GreaterThan(0));
+
+				using var pdfReader = new PdfReader(pdfResultStream);
+				using var document = new PdfDocument(pdfReader);
+
+				Assert.That(document.GetNumberOfPages(), Is.EqualTo(3));
+			}
 		}
 
 		static IEnumerable<string> GetTestDataResourceFileNames() => TestHelper.GetTestDataResourceFileNames();

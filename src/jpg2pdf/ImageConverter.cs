@@ -8,9 +8,9 @@ namespace jpg2pdf
 {
 	public class ImageConverter
 	{
-		public static Stream ToPdf(Stream imageStream)
+		public static Stream ToPdf(params Stream[] imageStreamCollection)
 		{
-			Guard.Against.Null(imageStream, nameof(imageStream));
+			Guard.Against.Null(imageStreamCollection, nameof(imageStreamCollection));
 
 			var pdfStream = new MemoryStream();
 			using var pdfWriter = new PdfWriter(pdfStream);
@@ -20,7 +20,7 @@ namespace jpg2pdf
 
 			var document = new Document(pdfDoc);
 
-			var buffer = ConvertStreamInByteArray(imageStream);
+			var buffer = ConvertStreamInByteArray(imageStreamCollection[0]);
 			var image = new Image(ImageDataFactory.Create(buffer));
 
 			document.Add(image);
