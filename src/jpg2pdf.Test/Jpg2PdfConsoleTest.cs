@@ -16,7 +16,7 @@
 		{
 			var outputFilename = "file.pdf";
 
-			Console.Program.Main(new[] { resourceName, outputFilename });
+			Console.Program.Main(new[] { resourceName, $"-o{outputFilename}" });
 			Assert.That(File.Exists(outputFilename), Is.True);
 		}
 
@@ -24,13 +24,6 @@
 		public void TestMain_WithNoArguments()
 		{
 			Assert.Throws<InvalidOperationException>(() => Console.Program.Main(Array.Empty<string>()));
-		}
-
-		[Test]
-		public void TestMain_WithMoreThanOneArguments()
-		{
-			Assert.Throws<InvalidOperationException>(() => Console.Program.Main(new[] { "A", "B" }));
-
 		}
 
 		[Test]
@@ -69,10 +62,19 @@
 		[TearDown]
 		public void TearDown()
 		{
-			foreach (var file in GetTestDataResourceFileNames())
+			var currentDirectory = Directory.GetCurrentDirectory();
+			var allFiles = Directory.GetFiles(currentDirectory)
+				.Where(x =>
+				{
+					return x.EndsWith(".jpg")
+					|| x.EndsWith(".png")
+					|| x.EndsWith(".gif")
+					|| x.EndsWith(".pdf");
+				});
+
+			foreach (var item in allFiles)
 			{
-				File.Delete(file);
-				File.Delete(TestHelper.GetPdfFileNameGivenImageFileName(file));
+				File.Delete(item);
 			}
 		}
 

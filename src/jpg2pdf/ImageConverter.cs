@@ -34,7 +34,7 @@ namespace jpg2pdf
 
 		public static void ToPdf(string fileName, string outputFileName = null)
 		{
-			Guard.Against.NullOrEmpty(fileName, nameof(fileName));
+			Guard.Against.NullOrEmpty(fileName.Trim(), nameof(fileName));
 
 			outputFileName ??= $"{fileName}.pdf";
 
@@ -49,6 +49,7 @@ namespace jpg2pdf
 			Guard.Against.NullOrEmpty(inputFiles, nameof(inputFiles));
 
 			outputFileName ??= $"{inputFiles[0]}.pdf";
+			outputFileName = outputFileName.Trim();
 
 			var inputStreamCollection = inputFiles
 				.Select(x => new FileStream(x, FileMode.Open))

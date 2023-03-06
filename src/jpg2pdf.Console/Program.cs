@@ -1,20 +1,19 @@
-﻿namespace jpg2pdf.Console
+﻿using CommandLine;
+
+namespace jpg2pdf.Console
 {
 	public class Program
 	{
 		public static void Main(string[] args)
 		{
-			switch (args.Length)
+			if (args.Length is 0)
 			{
-				case 0:
-					throw new InvalidOperationException("Any file to convert");
-				case > 1:
-					throw new InvalidOperationException("Jpg2Pdf can convert only one file at a time");
-				default:
-					break;
+				throw new InvalidOperationException();
 			}
 
-			ImageConverter.ToPdf(args[0]);
+			var option = Parser.Default.ParseArguments<Options>(args).Value;
+
+			ImageConverter.ToPdf(option.InputFiles.ToArray(), option.OutputFile);
 		}
 	}
 }
