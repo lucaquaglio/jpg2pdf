@@ -17,13 +17,15 @@ namespace jpg2pdf
 			pdfWriter.SetCloseStream(false);
 
 			var pdfDoc = new PdfDocument(pdfWriter);
-
 			var document = new Document(pdfDoc);
 
-			var buffer = ConvertStreamInByteArray(imageStreamCollection[0]);
-			var image = new Image(ImageDataFactory.Create(buffer));
+			foreach (var imageStream in imageStreamCollection)
+			{
+				var buffer = ConvertStreamInByteArray(imageStream);
+				var image = new Image(ImageDataFactory.Create(buffer));
 
-			document.Add(image);
+				document.Add(image);
+			}
 			document.Close();
 
 			pdfStream.Position = 0;
