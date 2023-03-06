@@ -32,15 +32,15 @@ namespace jpg2pdf
 			return pdfStream;
 		}
 
-		public static void ToPdf(string fileName)
+		public static void ToPdf(string fileName, string outputFileName = null)
 		{
 			Guard.Against.NullOrEmpty(fileName, nameof(fileName));
 
-			var outputFilename = $"{fileName}.pdf";
+			outputFileName ??= $"{fileName}.pdf";
 
 			using var reader = new FileStream(fileName, FileMode.Open);
 			using var pdfStream = ToPdf(reader);
-			using var output = new FileStream(outputFilename, FileMode.Create);
+			using var output = new FileStream(outputFileName, FileMode.Create);
 			pdfStream.CopyTo(output);
 		}
 

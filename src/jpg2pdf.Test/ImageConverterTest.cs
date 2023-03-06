@@ -41,6 +41,26 @@ namespace jpg2pdf.Test
 			}
 		}
 
+		[Test, TestCaseSource(nameof(GetTestDataResourceFileNames))]
+		public void TestToPdf_ExportToFile_OutputFileNameSpecified(string resourceName)
+		{
+			TestHelper.WriteFileGivenResourceName(resourceName);
+			var expectedFilenameResult = "result.pdf";
+
+			try
+			{
+				ImageConverter.ToPdf(resourceName, expectedFilenameResult);
+
+				Assert.That(File.Exists(expectedFilenameResult), Is.True);
+				Assert.DoesNotThrow(() => new PdfReader(expectedFilenameResult).Close());
+			}
+			finally
+			{
+				File.Delete(resourceName);
+				File.Delete(expectedFilenameResult);
+			}
+		}
+
 		[Test]
 		public void TestGuardClause()
 		{
