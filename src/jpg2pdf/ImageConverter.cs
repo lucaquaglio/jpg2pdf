@@ -10,7 +10,7 @@ namespace jpg2pdf
 	{
 		public static Stream ToPdf(params Stream[] imageStreamCollection)
 		{
-			Guard.Against.Null(imageStreamCollection, nameof(imageStreamCollection));
+			Guard.Against.NullOrEmpty(imageStreamCollection, nameof(imageStreamCollection));
 
 			var pdfStream = new MemoryStream();
 			using var pdfWriter = new PdfWriter(pdfStream);
