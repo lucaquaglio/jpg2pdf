@@ -32,7 +32,7 @@ namespace jpg2pdf
 			return pdfStream;
 		}
 
-		public static void ToPdf(string fileName, string outputFileName = null)
+		public static void ToPdfFile(string fileName, string outputFileName = null)
 		{
 			Guard.Against.NullOrEmpty(fileName.Trim(), nameof(fileName));
 
@@ -44,7 +44,7 @@ namespace jpg2pdf
 			pdfStream.CopyTo(output);
 		}
 
-		public static void ToPdf(string[] inputFiles, string outputFileName = null)
+		public static void ToPdfFile(string[] inputFiles, string outputFileName = null)
 		{
 			Guard.Against.NullOrEmpty(inputFiles, nameof(inputFiles));
 

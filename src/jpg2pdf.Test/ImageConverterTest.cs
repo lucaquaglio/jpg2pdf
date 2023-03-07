@@ -20,40 +20,40 @@ namespace jpg2pdf.Test
 		}
 
 		[Test, TestCaseSource(nameof(GetTestDataImageFilePathCollection))]
-		public void TestToPdf_ExportToFile(string imageFilePath)
+		public void TestToPdfFile(string imageFilePath)
 		{
-			ImageConverter.ToPdf(imageFilePath);
+			ImageConverter.ToPdfFile(imageFilePath);
 
 			AssertFileExistsAndIsAValidPdf(imageFilePath);
 		}
 
 		[Test, TestCaseSource(nameof(GetTestDataImageFilePathCollection))]
-		public void TestToPdf_ExportToFile_OutputFileNameSpecified(string imageFilePath)
+		public void TestToPdfFile_OutputFileNameSpecified(string imageFilePath)
 		{
 			var expectedFilenameResult = Path.Combine(TestFileDirectory, "result.pdf");
 
-			ImageConverter.ToPdf(imageFilePath, expectedFilenameResult);
+			ImageConverter.ToPdfFile(imageFilePath, expectedFilenameResult);
 
 			AssertFileExistsAndIsAValidPdf(expectedFilenameResult);
 		}
 
 		[Test]
-		public void TestToPdf_ExportToFile_MultipleImagesInput()
+		public void TestToPdfToFile_MultipleImagesInput()
 		{
 			var imageFileCollection = GetTestDataImageFilePathCollection();
 
-			ImageConverter.ToPdf(imageFileCollection.ToArray());
+			ImageConverter.ToPdfFile(imageFileCollection.ToArray());
 
 			AssertFileExistsAndIsAValidPdf(imageFileCollection.First());
 		}
 
 		[Test]
-		public void TestToPdf_ExportToFile_MultipleImagesInput_OutputFilenameSpecified()
+		public void TestToPdfToFile_MultipleImagesInput_OutputFilenameSpecified()
 		{
 			var outputFilename = Path.Combine(TestFileDirectory, "result.pdf");
 			var imageFileCollection = GetTestDataImageFilePathCollection();
 
-			ImageConverter.ToPdf(imageFileCollection.ToArray(), outputFilename);
+			ImageConverter.ToPdfFile(imageFileCollection.ToArray(), outputFilename);
 
 			AssertFileExistsAndIsAValidPdf(outputFilename);
 		}
@@ -63,11 +63,11 @@ namespace jpg2pdf.Test
 		public void TestGuardClause()
 		{
 			Assert.Throws<ArgumentNullException>(() => ImageConverter.ToPdf(imageStreamCollection: null));
-			Assert.Throws<ArgumentException>(() => ImageConverter.ToPdf(string.Empty));
+			Assert.Throws<ArgumentException>(() => ImageConverter.ToPdfFile(string.Empty));
 			Assert.Throws<ArgumentException>(() => ImageConverter.ToPdf(Enumerable.Empty<Stream>().ToArray()));
 
 			Assert.Throws<iText.IO.Exceptions.IOException>(() => ImageConverter.ToPdf(Stream.Null));
-			Assert.Throws<FileNotFoundException>(() => ImageConverter.ToPdf("file not exists"));
+			Assert.Throws<FileNotFoundException>(() => ImageConverter.ToPdfFile("file not exists"));
 		}
 
 		[Test]
