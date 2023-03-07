@@ -1,17 +1,16 @@
 ﻿namespace jpg2pdf.Test
 {
-	sealed class Jpg2PdfConsoleTest
+	sealed class Jpg2PdfConsoleTest : TestCase
 	{
-		[Test, TestCaseSource(nameof(GetTestDataResourceFileNames))]
-		public void TestMain_WithManyDifferentFiles(string resourceName)
+		[Test, TestCaseSource(nameof(GetTestDataImageFilePathCollection))]
+		public void TestMain_WithManyDifferentFiles(string imageFilePath)
 		{
-			Console.Program.Main(new[] { resourceName });
+			Console.Program.Main(new[] { imageFilePath });
 
-			var expectedOutputFilename = TestHelper.GetPdfFileNameGivenImageFileName(resourceName);
-			Assert.That(File.Exists(expectedOutputFilename), Is.True);
+			AssertFileExists(imageFilePath);
 		}
 
-		[Test, TestCaseSource(nameof(GetTestDataResourceFileNames))]
+		[Test, TestCaseSource(nameof(GetTestDataResourceNames))]
 		public void TestMain_OutputFilenameSpecified(string resourceName)
 		{
 			var outputFilename = "file.pdf";
@@ -29,7 +28,7 @@
 		[Test]
 		public void TestMain_WithMultipleFiles_NoOutputFilenameSpecified()
 		{
-			var imageFileNameCollection = GetTestDataResourceFileNames();
+			var imageFileNameCollection = GetTestDataResourceNames();
 			var expectedOutputFilename = TestHelper.GetPdfFileNameGivenImageFileName(imageFileNameCollection.ElementAt(0));
 
 			Console.Program.Main(imageFileNameCollection.ToArray());
@@ -40,7 +39,7 @@
 		[Test]
 		public void TestMain_WithMultipleFile_OutputFilenameSpecified()
 		{
-			var args = GetTestDataResourceFileNames().ToList();
+			var args = GetTestDataResourceNames().ToList();
 			var outputOutputFilename = "Result.pdf";
 
 			args.Add($"-o {outputOutputFilename}");
@@ -53,31 +52,10 @@
 		[SetUp]
 		public void SetUp()
 		{
-			foreach (var file in GetTestDataResourceFileNames())
+			foreach (var file in GetTestDataResourceNames())
 			{
 				TestHelper.WriteFileGivenResourceName(file);
 			}
 		}
-
-		[TearDown]
-		public void TearDown()
-		{
-			var currentDirectory = Directory.GetCurrentDirectory();
-			var allFiles = Directory.GetFiles(currentDirectory)
-				.Where(x =>
-				{
-					return x.EndsWith(".jpg")
-					|| x.EndsWith(".png")
-					|| x.EndsWith(".gif")
-					|| x.EndsWith(".pdf");
-				});
-
-			foreach (var item in allFiles)
-			{
-				File.Delete(item);
-			}
-		}
-
-		static IEnumerable<string> GetTestDataResourceFileNames() => TestHelper.GetTestDataResourceFileNames();
 	}
 }
