@@ -13,7 +13,7 @@ namespace jpg2pdf.Console
 
 			var option = Parser.Default.ParseArguments<Options>(args).Value;
 
-			ImageConverter.ToPdf(option.InputFiles.ToArray(), option.OutputFile);
+			ImageConverter.ToPdfFile(option.InputFiles.ToArray(), option.OutputFile);
 		}
 	}
 }

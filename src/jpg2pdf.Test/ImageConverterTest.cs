@@ -3,79 +3,59 @@ using iText.Layout;
 
 namespace jpg2pdf.Test
 {
-	sealed class ImageConverterTest
+	sealed class ImageConverterTest : TestCase
 	{
-		[Test, TestCaseSource(nameof(GetTestDataResourceFileNames))]
+		[Test, TestCaseSource(nameof(GetTestDataResourceNames))]
 		public void TesToPdf(string resourceName)
 		{
-			using Stream inputImageStream = TestHelper.GetResourceStream(resourceName);
+			using Stream inputImageStream = GetResourceStream(resourceName);
 			{
 				Assert.That(inputImageStream, Is.Not.Null);
 
 				using var pdfStream = ImageConverter.ToPdf(inputImageStream);
 				{
-					Assert.That(pdfStream, Is.Not.Null);
-					Assert.That(pdfStream.Length, Is.GreaterThan(0));
-					Assert.DoesNotThrow(() => new PdfReader(pdfStream).Close());
+					AssertStreamIsAValidPdf(pdfStream);
 				}
 			}
 		}
 
-		[Test, TestCaseSource(nameof(GetTestDataResourceFileNames))]
-		public void TestToPdf_ExportToFile(string resourceName)
+		[Test, TestCaseSource(nameof(GetTestDataImageFilePathCollection))]
+		public void TestToPdfFile(string imageFilePath)
 		{
-			TestHelper.WriteFileGivenResourceName(resourceName);
-			var expectedFilenameResult = TestHelper.GetPdfFileNameGivenImageFileName(resourceName);
+			ImageConverter.ToPdfFile(imageFilePath);
 
-			ImageConverter.ToPdf(resourceName);
-
-			Assert.That(File.Exists(expectedFilenameResult), Is.True);
-			Assert.DoesNotThrow(() => new PdfReader(expectedFilenameResult).Close());
+			AssertFileExistsAndIsAValidPdf(imageFilePath);
 		}
 
-		[Test, TestCaseSource(nameof(GetTestDataResourceFileNames))]
-		public void TestToPdf_ExportToFile_OutputFileNameSpecified(string resourceName)
+		[Test, TestCaseSource(nameof(GetTestDataImageFilePathCollection))]
+		public void TestToPdfFile_OutputFileNameSpecified(string imageFilePath)
 		{
-			TestHelper.WriteFileGivenResourceName(resourceName);
-			var expectedFilenameResult = "result.pdf";
+			var expectedFilenameResult = Path.Combine(TestFileDirectory, "result.pdf");
 
-			ImageConverter.ToPdf(resourceName, expectedFilenameResult);
+			ImageConverter.ToPdfFile(imageFilePath, expectedFilenameResult);
 
-			Assert.That(File.Exists(expectedFilenameResult), Is.True);
-			Assert.DoesNotThrow(() => new PdfReader(expectedFilenameResult).Close());
+			AssertFileExistsAndIsAValidPdf(expectedFilenameResult);
 		}
 
 		[Test]
-		public void TestToPdf_ExportToFile_MultipleImagesInput()
+		public void TestToPdfToFile_MultipleImagesInput()
 		{
-			var inputResourceFileNames = GetTestDataResourceFileNames();
-			foreach (var resourceName in inputResourceFileNames)
-			{
-				TestHelper.WriteFileGivenResourceName(resourceName);
-			}
-			var expectedFilenameResult = TestHelper.GetPdfFileNameGivenImageFileName(inputResourceFileNames.ElementAt(0));
+			var imageFileCollection = GetTestDataImageFilePathCollection();
 
-			ImageConverter.ToPdf(inputResourceFileNames.ToArray());
+			ImageConverter.ToPdfFile(imageFileCollection.ToArray());
 
-			Assert.That(File.Exists(expectedFilenameResult), Is.True);
-			Assert.DoesNotThrow(() => new PdfReader(expectedFilenameResult).Close());
+			AssertFileExistsAndIsAValidPdf(imageFileCollection.First());
 		}
 
 		[Test]
-		public void TestToPdf_ExportToFile_MultipleImagesInput_OutputFilenameSpecified()
+		public void TestToPdfToFile_MultipleImagesInput_OutputFilenameSpecified()
 		{
-			var inputResourceFileNames = GetTestDataResourceFileNames();
-			foreach (var resourceName in inputResourceFileNames)
-			{
-				TestHelper.WriteFileGivenResourceName(resourceName);
-			}
-			var outputFilename = "result.pdf";
+			var outputFilename = Path.Combine(TestFileDirectory, "result.pdf");
+			var imageFileCollection = GetTestDataImageFilePathCollection();
 
-			ImageConverter.ToPdf(inputResourceFileNames.ToArray(), outputFilename);
+			ImageConverter.ToPdfFile(imageFileCollection.ToArray(), outputFilename);
 
-			Assert.That(File.Exists(outputFilename), Is.True);
-			Assert.DoesNotThrow(() => new PdfReader(outputFilename).Close());
-
+			AssertFileExistsAndIsAValidPdf(outputFilename);
 		}
 
 
@@ -83,52 +63,32 @@ namespace jpg2pdf.Test
 		public void TestGuardClause()
 		{
 			Assert.Throws<ArgumentNullException>(() => ImageConverter.ToPdf(imageStreamCollection: null));
-			Assert.Throws<ArgumentException>(() => ImageConverter.ToPdf(string.Empty));
+			Assert.Throws<ArgumentException>(() => ImageConverter.ToPdfFile(string.Empty));
 			Assert.Throws<ArgumentException>(() => ImageConverter.ToPdf(Enumerable.Empty<Stream>().ToArray()));
 
 			Assert.Throws<iText.IO.Exceptions.IOException>(() => ImageConverter.ToPdf(Stream.Null));
-			Assert.Throws<FileNotFoundException>(() => ImageConverter.ToPdf("file not exists"));
+			Assert.Throws<FileNotFoundException>(() => ImageConverter.ToPdfFile("file not exists"));
 		}
 
 		[Test]
 		public void TestToPdf_UsingMultipleImages()
 		{
-			var images = TestHelper.GetTestDataResourceFileNames()
-				.Select(x => TestHelper.GetResourceStream(x))
+			var imageStreamCollection = GetTestDataResourceNames()
+				.Select(x => GetResourceStream(x))
 				.ToArray();
 
-			using var pdfResultStream = ImageConverter.ToPdf(images);
+			using var pdfResultStream = ImageConverter.ToPdf(imageStreamCollection);
 			{
-				Assert.That(pdfResultStream, Is.Not.Null);
-				Assert.That(pdfResultStream.Length, Is.GreaterThan(0));
-
-				using var pdfReader = new PdfReader(pdfResultStream);
-				using var document = new PdfDocument(pdfReader);
-
-				Assert.That(document.GetNumberOfPages(), Is.EqualTo(3));
+				AssertStreamIsAValidPdf(pdfResultStream);
 			}
 		}
 
-		[TearDown]
-		public void TearDown()
+		void AssertStreamIsAValidPdf(Stream stream)
 		{
-			var currentDirectory = Directory.GetCurrentDirectory();
-			var allFiles = Directory.GetFiles(currentDirectory)
-				.Where(x =>
-				{
-					return x.EndsWith(".jpg")
-					|| x.EndsWith(".png")
-					|| x.EndsWith(".gif")
-					|| x.EndsWith(".pdf");
-				});
+			using var reader = new PdfReader(stream);
+			using var pdfDoc = new PdfDocument(reader);
 
-			foreach (var item in allFiles)
-			{
-				File.Delete(item);
-			}
+			Assert.That(pdfDoc.GetNumberOfPages(), Is.GreaterThan(0));
 		}
-
-		static IEnumerable<string> GetTestDataResourceFileNames() => TestHelper.GetTestDataResourceFileNames();
-
 	}
 }

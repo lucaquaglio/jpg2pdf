@@ -1,23 +1,22 @@
 ﻿namespace jpg2pdf.Test
 {
-	sealed class Jpg2PdfConsoleTest
+	sealed class Jpg2PdfConsoleTest : TestCase
 	{
-		[Test, TestCaseSource(nameof(GetTestDataResourceFileNames))]
-		public void TestMain_WithManyDifferentFiles(string resourceName)
+		[Test, TestCaseSource(nameof(GetTestDataImageFilePathCollection))]
+		public void TestMain_WithManyDifferentFiles(string imageFilePath)
 		{
-			Console.Program.Main(new[] { resourceName });
+			Console.Program.Main(new[] { imageFilePath });
 
-			var expectedOutputFilename = TestHelper.GetPdfFileNameGivenImageFileName(resourceName);
-			Assert.That(File.Exists(expectedOutputFilename), Is.True);
+			AssertFileExistsAndIsAValidPdf(imageFilePath);
 		}
 
-		[Test, TestCaseSource(nameof(GetTestDataResourceFileNames))]
-		public void TestMain_OutputFilenameSpecified(string resourceName)
+		[Test, TestCaseSource(nameof(GetTestDataImageFilePathCollection))]
+		public void TestMain_OutputFilenameSpecified(string imageFilePath)
 		{
-			var outputFilename = "file.pdf";
+			var outputFileNamePath = Path.Combine(TestFileDirectory, "file.pdf");
 
-			Console.Program.Main(new[] { resourceName, $"-o{outputFilename}" });
-			Assert.That(File.Exists(outputFilename), Is.True);
+			Console.Program.Main(new[] { imageFilePath, $"-o{outputFileNamePath}" });
+			FileAssert.Exists(outputFileNamePath);
 		}
 
 		[Test]
@@ -29,55 +28,24 @@
 		[Test]
 		public void TestMain_WithMultipleFiles_NoOutputFilenameSpecified()
 		{
-			var imageFileNameCollection = GetTestDataResourceFileNames();
-			var expectedOutputFilename = TestHelper.GetPdfFileNameGivenImageFileName(imageFileNameCollection.ElementAt(0));
+			var imageFileCollection = GetTestDataImageFilePathCollection();
 
-			Console.Program.Main(imageFileNameCollection.ToArray());
+			Console.Program.Main(imageFileCollection.ToArray());
 
-			Assert.That(File.Exists(expectedOutputFilename), Is.True);
+			AssertFileExistsAndIsAValidPdf(imageFileCollection.First());
 		}
 
 		[Test]
 		public void TestMain_WithMultipleFile_OutputFilenameSpecified()
 		{
-			var args = GetTestDataResourceFileNames().ToList();
-			var outputOutputFilename = "Result.pdf";
+			var args = GetTestDataImageFilePathCollection().ToList();
+			var outputOutputFilename = Path.Combine(TestFileDirectory, "Result.pdf");
 
 			args.Add($"-o {outputOutputFilename}");
 
 			Console.Program.Main(args.ToArray());
 
-			Assert.That(File.Exists(outputOutputFilename), Is.True);
+			FileAssert.Exists(outputOutputFilename);
 		}
-
-		[SetUp]
-		public void SetUp()
-		{
-			foreach (var file in GetTestDataResourceFileNames())
-			{
-				TestHelper.WriteFileGivenResourceName(file);
-			}
-		}
-
-		[TearDown]
-		public void TearDown()
-		{
-			var currentDirectory = Directory.GetCurrentDirectory();
-			var allFiles = Directory.GetFiles(currentDirectory)
-				.Where(x =>
-				{
-					return x.EndsWith(".jpg")
-					|| x.EndsWith(".png")
-					|| x.EndsWith(".gif")
-					|| x.EndsWith(".pdf");
-				});
-
-			foreach (var item in allFiles)
-			{
-				File.Delete(item);
-			}
-		}
-
-		static IEnumerable<string> GetTestDataResourceFileNames() => TestHelper.GetTestDataResourceFileNames();
 	}
 }
