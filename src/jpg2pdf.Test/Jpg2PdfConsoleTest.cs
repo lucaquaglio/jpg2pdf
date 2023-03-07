@@ -7,7 +7,7 @@
 		{
 			Console.Program.Main(new[] { imageFilePath });
 
-			AssertFileExists(imageFilePath);
+			AssertFileExistsAndIsAValidPdf(imageFilePath);
 		}
 
 		[Test, TestCaseSource(nameof(GetTestDataImageFilePathCollection))]
@@ -32,7 +32,7 @@
 
 			Console.Program.Main(imageFileCollection.ToArray());
 
-			AssertFileExists(imageFileCollection.First());
+			AssertFileExistsAndIsAValidPdf(imageFileCollection.First());
 		}
 
 		[Test]

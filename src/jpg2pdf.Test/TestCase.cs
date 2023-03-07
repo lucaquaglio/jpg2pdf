@@ -1,10 +1,10 @@
-﻿using System.Reflection;
+﻿using iText.Kernel.Pdf;
+using System.Reflection;
 
 namespace jpg2pdf.Test
 {
 	class TestCase
 	{
-
 		[SetUp]
 		public virtual void SetUp()
 		{
@@ -19,17 +19,18 @@ namespace jpg2pdf.Test
 
 		protected static string GetPdfFileNameGivenImageFileName(string imageFilename) => $"{imageFilename}.pdf";
 
-		protected void AssertFileExists(string imageFilePath)
+		protected void AssertFileExistsAndIsAValidPdf(string imageFilePath)
 		{
-			var pdfFilePath = GetPdfFileNameGivenImageFileName(imageFilePath);
-			FileAssert.Exists(pdfFilePath);
-		}
+			var pdfFilePath = imageFilePath.EndsWith(".pdf")
+				? imageFilePath
+				: GetPdfFileNameGivenImageFileName(imageFilePath);
 
-		protected static void WriteFileGivenResourceName(string resourceName)
-		{
-			using var resourceStream = GetResourceStream(resourceName);
-			using var fileStream = new FileStream(resourceName, FileMode.Create);
-			resourceStream.CopyTo(fileStream);
+			FileAssert.Exists(pdfFilePath);
+
+			using var reader = new PdfReader(pdfFilePath);
+			using var pdfDoc = new PdfDocument(reader);
+
+			Assert.That(pdfDoc.GetNumberOfPages(), Is.GreaterThan(0));
 		}
 
 		protected static Stream GetResourceStream(string resourceName)
@@ -39,9 +40,9 @@ namespace jpg2pdf.Test
 
 		protected static IEnumerable<string> GetTestDataResourceNames()
 		{
-			yield return TestHelper.Test1ResourceName;
-			yield return TestHelper.Test2ResourceName;
-			yield return TestHelper.Test3ResourceName;
+			yield return Test1ResourceName;
+			yield return Test2ResourceName;
+			yield return Test3ResourceName;
 		}
 
 		protected static IEnumerable<string> GetTestDataImageFilePathCollection()
