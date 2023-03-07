@@ -10,13 +10,13 @@
 			AssertFileExists(imageFilePath);
 		}
 
-		[Test, TestCaseSource(nameof(GetTestDataResourceNames))]
-		public void TestMain_OutputFilenameSpecified(string resourceName)
+		[Test, TestCaseSource(nameof(GetTestDataImageFilePathCollection))]
+		public void TestMain_OutputFilenameSpecified(string imageFilePath)
 		{
-			var outputFilename = "file.pdf";
+			var outputFileNamePath = Path.Combine(TestFileDirectory, "file.pdf");
 
-			Console.Program.Main(new[] { resourceName, $"-o{outputFilename}" });
-			Assert.That(File.Exists(outputFilename), Is.True);
+			Console.Program.Main(new[] { imageFilePath, $"-o{outputFileNamePath}" });
+			FileAssert.Exists(outputFileNamePath);
 		}
 
 		[Test]
@@ -28,34 +28,24 @@
 		[Test]
 		public void TestMain_WithMultipleFiles_NoOutputFilenameSpecified()
 		{
-			var imageFileNameCollection = GetTestDataResourceNames();
-			var expectedOutputFilename = TestHelper.GetPdfFileNameGivenImageFileName(imageFileNameCollection.ElementAt(0));
+			var imageFileCollection = GetTestDataImageFilePathCollection();
 
-			Console.Program.Main(imageFileNameCollection.ToArray());
+			Console.Program.Main(imageFileCollection.ToArray());
 
-			Assert.That(File.Exists(expectedOutputFilename), Is.True);
+			AssertFileExists(imageFileCollection.First());
 		}
 
 		[Test]
 		public void TestMain_WithMultipleFile_OutputFilenameSpecified()
 		{
-			var args = GetTestDataResourceNames().ToList();
-			var outputOutputFilename = "Result.pdf";
+			var args = GetTestDataImageFilePathCollection().ToList();
+			var outputOutputFilename = Path.Combine(TestFileDirectory, "Result.pdf");
 
 			args.Add($"-o {outputOutputFilename}");
 
 			Console.Program.Main(args.ToArray());
 
-			Assert.That(File.Exists(outputOutputFilename), Is.True);
-		}
-
-		[SetUp]
-		public void SetUp()
-		{
-			foreach (var file in GetTestDataResourceNames())
-			{
-				TestHelper.WriteFileGivenResourceName(file);
-			}
+			FileAssert.Exists(outputOutputFilename);
 		}
 	}
 }

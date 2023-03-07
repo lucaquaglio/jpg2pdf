@@ -75,6 +75,6 @@ namespace jpg2pdf.Test
 			}
 		}
 
-		static string TestFileDirectory { get; } = Path.Combine(TestContext.CurrentContext.TestDirectory, "Files");
+		protected static string TestFileDirectory { get; } = Path.Combine(TestContext.CurrentContext.TestDirectory, "Files");
 	}
 }
